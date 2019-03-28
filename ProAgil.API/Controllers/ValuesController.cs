@@ -5,8 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ProAgil.API.Data;
-using ProAgil.API.Models;
+using ProAgil.Repository;
 
 namespace ProAgil.API.Controllers
 {
@@ -14,9 +13,9 @@ namespace ProAgil.API.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
-        private readonly DataContext _contexto;
+        private readonly ProAgilContext _contexto;
 
-        public ValuesController(DataContext contexto)
+        public ValuesController(ProAgilContext contexto)
         {
             _contexto = contexto;
         }
@@ -47,7 +46,7 @@ namespace ProAgil.API.Controllers
             {
                 //async serve pra esperar ir no banco de dados e retornar os eventos
                 //cada chamada do controller será criada uma instancia e uma nova thread será aberta. Cada chamada aberta terá uma espera, não travando o recurso
-                var results = await _contexto.Eventos.FirstAsync(x => x.EventoId == id);
+                var results = await _contexto.Eventos.FirstAsync(x => x.Id == id);
                 
                 return Ok(results);
             }
