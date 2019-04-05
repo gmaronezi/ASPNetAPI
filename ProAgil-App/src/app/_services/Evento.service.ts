@@ -20,6 +20,6 @@ export class EventoService {
   }
 
   getEventoById(id: number): Observable<Evento> {
-    return this.http.get<Evento>(`${this.baseUrl}/${tema}`);
+    return this.http.get<Evento>(`${this.baseUrl}/${id}`);
   }
 }

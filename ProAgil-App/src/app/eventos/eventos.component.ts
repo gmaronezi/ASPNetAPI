@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, TemplateRef } from '@angular/core';
 import { EventoService } from '../_services/Evento.service';
+import { Evento } from '../_models/Evento';
+import { BsModalRef, BsModalService } from 'ngx-bootstrap';
 
 @Component({
   selector: 'app-eventos',
@@ -7,33 +9,50 @@ import { EventoService } from '../_services/Evento.service';
   styleUrls: ['./eventos.component.css']
 })
 export class EventosComponent implements OnInit {
-  
-  _filtroLista: string;
-  get filtroLista(){
+
+  eventosFiltrados: Evento[];
+  eventos: Evento[];
+  imagemLargura: number = 50;
+  imagemMargem: number = 2;
+  mostrarImagem: boolean = false;
+  modalRef: BsModalRef;
+
+  _filtroLista: string = '';
+
+  constructor(
+    private eventoService: EventoService 
+    ,private modalService: BsModalService
+    ) { }
+
+  get filtroLista(): string{
     return this._filtroLista
   }
 
 
   set filtroLista(value: string){
     this._filtroLista = value;
-    this.eventroFiltrados = this.filtroLista ? this.filtrarEventos(this.filtroLista) : this.eventos; /*se está populada retorna uma lista, senão retorna eventos*/
+    this.eventosFiltrados = this.filtroLista ? this.filtrarEventos(this.filtroLista) : this.eventos; /*se está populada retorna uma lista, senão retorna eventos*/
   }
 
-  eventroFiltrados: any = [];
+  openModal(template: TemplateRef<any>) {
+    this.modalRef = this.modalService.show(template);
+  }
 
-  eventos: any = [];
-  imagemLargura: number = 50;
-  imagemMargem: number = 2;
-  mostrarImagem: boolean = false;
-
-  constructor(private eventoService: EventoService ) { }
-
-  //vai ser executado antes de o html ficar pronto
   ngOnInit() {
     this.getEventos();
   }
 
-  filtrarEventos(filtrarPor: string): any{
+  getEventos(){
+    this.eventoService.getAllEvento().subscribe((_eventos: Evento[]) => {this.eventos = _eventos; console.log(_eventos);},
+      error => {
+        console.log(error);
+      });
+  }
+
+  //vai ser executado antes de o html ficar pronto
+  
+
+  filtrarEventos(filtrarPor: string): Evento[]{
     filtrarPor = filtrarPor.toLocaleLowerCase();
     return this.eventos.filter(/*retorna apenas os itens do evento que estão nesse filtro*/
       evento => evento.tema.toLocaleLowerCase().indexOf(filtrarPor) !== -1
@@ -44,11 +63,6 @@ export class EventosComponent implements OnInit {
     this.mostrarImagem = !this.mostrarImagem;
   }
 
-  getEventos(){
-    this.eventoService.getAllEvento().subscribe(response => {this.eventos = response; console.log(response);},
-      error => {
-        console.log(error);
-      });
-  }
+  
 
 }
