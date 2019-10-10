@@ -2,6 +2,9 @@ import { Component, OnInit, TemplateRef } from '@angular/core';
 import { EventoService } from '../_services/Evento.service';
 import { Evento } from '../_models/Evento';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap';
+import { FormGroup, Validators, FormBuilder } from '@angular/forms';
+import { defineLocale, BsLocaleService, ptBrLocale } from 'ngx-bootstrap';
+defineLocale('pt-br', ptBrLocale);
 
 @Component({
   selector: 'app-eventos',
@@ -16,13 +19,18 @@ export class EventosComponent implements OnInit {
   imagemMargem: number = 2;
   mostrarImagem: boolean = false;
   modalRef: BsModalRef;
+  registerForm: FormGroup;
 
-  _filtroLista: string = '';
+  _filtroLista = '';
 
   constructor(
     private eventoService: EventoService 
     ,private modalService: BsModalService
-    ) { }
+    ,private fb: FormBuilder  
+    ,private localeService: BsLocaleService
+    ) { 
+      this.localeService.use('pt-br');
+    }
 
   get filtroLista(): string{
     return this._filtroLista
@@ -39,14 +47,34 @@ export class EventosComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.validation();
     this.getEventos();
   }
 
   getEventos(){
-    this.eventoService.getAllEvento().subscribe((_eventos: Evento[]) => {this.eventos = _eventos; console.log(_eventos);},
+    this.eventoService.getAllEvento().subscribe((_eventos: Evento[]) => {
+      this.eventos = _eventos;
+      this.eventosFiltrados = this.eventos;
+       console.log(_eventos);},
       error => {
         console.log(error);
       });
+  }
+
+  validation(){
+    this.registerForm = this.fb.group({
+      tema: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(50)]],
+      local: ['', Validators.required],
+      imagemURL: ['', Validators.required],
+      dataEvento: ['', Validators.required],
+      qtdePessoas: ['', [Validators.required, Validators.max(120000)]],
+      telefone: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]]
+    });
+  }
+
+  salvarAlteracao(){
+
   }
 
   //vai ser executado antes de o html ficar pronto
